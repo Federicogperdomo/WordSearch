@@ -8,8 +8,10 @@ public class WordFinder
 {
     public const int ELEMENTS_TO_RETURN = 10;
 
+    //to find words horizontally
     private IEnumerable<string> _matrix;
-    private List<string> _reverseMatrix = new List<string>();
+    //to find words vertically
+    private List<string> _transposedMatrix = new List<string>();
 
     public WordFinder(IEnumerable<string> matrix)
     {
@@ -23,7 +25,7 @@ public class WordFinder
             {
                 builder.Append(line[i]);
             }
-            _reverseMatrix.Add(builder.ToString());
+            _transposedMatrix.Add(builder.ToString());
         }
     }
 
@@ -46,12 +48,19 @@ public class WordFinder
         //To find horizontally
         FindOcurrences(_matrix, wordStream, ref resultWordsFounded);
         //To find vertically
-        FindOcurrences(_reverseMatrix, wordStream, ref resultWordsFounded);
+        FindOcurrences(_transposedMatrix, wordStream, ref resultWordsFounded);
 
         return resultWordsFounded;
     }
 
     #region Private methods
+    private static IEnumerable<string> CleanEntryData(IEnumerable<string> wordStream)
+    {
+        return wordStream
+            .Distinct()
+            .ToList();
+    }
+
     private void FindOcurrences(IEnumerable<string> matrix, IEnumerable<string> wordStream, ref Dictionary<string, int> resultWordsFounded)
     {
         foreach (var line in matrix)
@@ -59,7 +68,7 @@ public class WordFinder
             foreach (string wordToAnalize in wordStream)
             {
                 //I've analyzed the possibility to iterate every item (character) from matrix and compare with entered wordstream, but this approach in a 64x64 matrix
-                //it would iterate 4096 times against 128 times (twice 64 lines iterate).
+                //it would iterate 4096 times against 128 times (twice 64 lines iteration).
                 //Also I'm using IndexOf method from .Net framework that is optimized to find a substring in a string.
                 int startIndex = 0;
                 while (line.IndexOf(wordToAnalize, startIndex) != -1)
@@ -77,13 +86,6 @@ public class WordFinder
                 }
             }
         }
-    }
-
-    private static IEnumerable<string> CleanEntryData(IEnumerable<string> wordStream)
-    {
-        return wordStream
-            .Distinct()
-            .ToList();
     }
     #endregion Private methods
 }
